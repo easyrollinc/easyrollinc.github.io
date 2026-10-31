@@ -155,3 +155,29 @@
     }, 2500);
   }
 })();
+
+/* What we build cards: fade and rise as they enter. Reduced motion and
+   no-JS leave every card visible and still. */
+(function () {
+  var cards = document.querySelectorAll(".build-card");
+  var section = document.querySelector(".build");
+  if (!section || !cards.length) return;
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function showAll() {
+    cards.forEach(function (card) { card.classList.add("in"); });
+  }
+  if (reduce || !("IntersectionObserver" in window)) {
+    showAll();
+    return;
+  }
+  section.classList.add("build-armed");
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add("in");
+      observer.unobserve(entry.target);
+    });
+  }, { threshold: 0.2 });
+  cards.forEach(function (card) { observer.observe(card); });
+  setTimeout(showAll, 3000);
+})();
